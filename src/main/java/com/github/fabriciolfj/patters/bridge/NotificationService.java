@@ -1,18 +1,20 @@
 package com.github.fabriciolfj.patters.bridge;
 
-import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
 
 @Service
-@RequiredArgsConstructor
 public class NotificationService {
 
-    @Qualifier("paymentEmailNotification")
     private final Notification paymentNotification;
-
-    @Qualifier("fraudSmsNotification")
     private final Notification fraudNotification;
+
+    public NotificationService(
+            @Qualifier("paymentEmailNotification") Notification paymentNotification,
+            @Qualifier("fraudSmsNotification") Notification fraudNotification) {
+        this.paymentNotification = paymentNotification;
+        this.fraudNotification = fraudNotification;
+    }
 
     public void onPaymentConfirmed(String email) {
         paymentNotification.notifyUser(email);
