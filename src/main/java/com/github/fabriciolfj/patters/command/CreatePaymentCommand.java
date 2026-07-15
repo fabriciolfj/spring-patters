@@ -1,7 +1,7 @@
 package com.github.fabriciolfj.patters.command;
 
 public record CreatePaymentCommand(
-        InMemoryPaymentRepository repository,
+        JdbcPaymentRepository repository,
         Payment payment
 ) implements PaymentCommand {
 
@@ -9,10 +9,6 @@ public record CreatePaymentCommand(
     public PaymentExecution execute() {
         Payment saved = repository.save(payment);
 
-        Runnable undo = () -> repository.findById(saved.id())
-                .map(p -> p.withStatus(PaymentStatus.CANCELLED))
-                .ifPresent(repository::save);
-
-        return new PaymentExecution(saved, undo);
+        return new PaymentExecution(saved, PaymentStatus.CANCELLED);
     }
 }

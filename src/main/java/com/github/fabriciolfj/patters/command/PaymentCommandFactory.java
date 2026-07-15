@@ -3,20 +3,15 @@ package com.github.fabriciolfj.patters.command;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
 
-import java.math.BigDecimal;
 import java.util.NoSuchElementException;
-import java.util.UUID;
 
 @Component
 @RequiredArgsConstructor
 public class PaymentCommandFactory {
 
-    private final InMemoryPaymentRepository repository;
+    private final JdbcPaymentRepository repository;
 
-    public PaymentCommand create(String customerId, BigDecimal amount) {
-        Payment payment = new Payment(
-                UUID.randomUUID().toString(), customerId, amount, PaymentStatus.COMPLETED);
-
+    public PaymentCommand create(Payment payment) {
         return new CreatePaymentCommand(repository, payment);
     }
 

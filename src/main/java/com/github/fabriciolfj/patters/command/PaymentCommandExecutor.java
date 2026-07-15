@@ -1,32 +1,36 @@
 package com.github.fabriciolfj.patters.command;
 
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
 
-import java.util.ArrayDeque;
-import java.util.Deque;
-
 @Component
 @Slf4j
+@RequiredArgsConstructor
 public class PaymentCommandExecutor {
 
-    private final Deque<Runnable> undoHistory = new ArrayDeque<>();
+    private final JdbcPaymentRepository paymentRepository;
+    private final PaymentUndoRepository undoRepository;
 
-    public Payment run(final PaymentCommand command) {
-        log.info("execute: {}", command.getClass().getSimpleName());
+    public PaymentExecution run(PaymentCommand command, String idPayment) {
+        log.info("Executando: {}", command.getClass().getSimpleName());
 
-        final var execution = command.execute();
-        undoHistory.push(execution.undo());
+        PaymentExecution execution = command.execute();
+        undoRepository.save(idPayment, execution.undoStatus());
 
-        return execution.payment();
+        return execution;
     }
 
-    public void undoLast() {
-        if (undoHistory.isEmpty()) {
-            log.info("nothing");
+    public void undo(String paymentId) {
+        var undoStatus = undoRepository.findByPaymentId(paymentId);
+        if (undoStatus.isEmpty()) {
+            log.info("Nenhuma ação para desfazer no pagamento: {}", paymentId);
             return;
         }
-
-        undoHistory.pop().run();
+        log.info("Desfazendo pagamento: {}", paymentId);
+        paymentRepository.findById(paymentId)
+                .map(p -> p.withStatus(undoStatus.get()))
+                .ifPresent(paymentRepository::save);
+        undoRepository.delete(paymentId);
     }
 }

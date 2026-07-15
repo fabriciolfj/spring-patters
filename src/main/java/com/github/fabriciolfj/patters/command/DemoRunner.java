@@ -11,7 +11,7 @@ import java.math.BigDecimal;
 public class DemoRunner implements CommandLineRunner {
 
     private final PaymentService paymentService;
-    private final InMemoryPaymentRepository repository;
+    private final JdbcPaymentRepository repository;
 
     @Override
     public void run(String... args) throws Exception {
@@ -20,12 +20,17 @@ public class DemoRunner implements CommandLineRunner {
 
     public void demo() {
         Payment p1 = paymentService.pay("customer-1", BigDecimal.valueOf(150));
-        System.out.println(repository.findAll()); // [Payment[id=..., status=COMPLETED]]
+        Payment p2 = paymentService.pay("customer-2", BigDecimal.valueOf(300));
+        Payment p3 = paymentService.pay("customer-3", BigDecimal.valueOf(500));
+
+        System.out.println(repository.findAll()); // 3 COMPLETED
 
         paymentService.cancel(p1.id());
-        System.out.println(repository.findAll()); // [Payment[id=..., status=CANCELLED]]
+        paymentService.cancel(p2.id());
 
-        paymentService.undoLastAction(); // desfaz o cancelamento
-        System.out.println(repository.findAll()); // [Payment[id=..., status=COMPLETED]]
+        System.out.println(repository.findAll()); // p1, p2 CANCELLED | p3 COMPLETED
+
+        paymentService.undo(p2.id()); // desfaz só o p2, não importa a ordem
+        System.out.println(repository.findAll()); // p1 CANCELLED | p2, p3 COMPLETED
     }
 }

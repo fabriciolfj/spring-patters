@@ -1,3 +1,3 @@
 package com.github.fabriciolfj.patters.command;
 
-public record PaymentExecution(Payment payment, Runnable undo) {}
+public record PaymentExecution(Payment payment, PaymentStatus undoStatus) {}

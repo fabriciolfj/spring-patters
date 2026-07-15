@@ -1,3 +1,11 @@
 spring:
   application:
     name: patters
+  datasource:
+    url: jdbc:h2:mem:patters;DB_CLOSE_DELAY=-1
+    driver-class-name: org.h2.Driver
+    username: sa
+    password:
+  sql:
+    init:
+      mode: always
