@@ -7,8 +7,8 @@ jobs:
   review:
     runs-on: ubuntu-latest
     permissions:
-      contents: read
-      pull-requests: write
+      contents: write
+      id-token: write   # necessário para o token OIDC do GitHub App da Anthropic
     steps:
       - uses: actions/checkout@v4
         with:
@@ -23,3 +23,4 @@ jobs:
             Foque em: concorrência, vazamento de recursos, N+1 queries,
             segurança, e aderência aos padrões definidos no CLAUDE.md.
             Poste comentários inline nos pontos problemáticos.
+            
